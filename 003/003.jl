@@ -1,43 +1,53 @@
 using Base.Test
 
-function primes_up_to(n::Integer)
-    # Use the sieve of Eratosthenes to generate primes up to n
-    crossed_out = falses(n)
-    primes = Int[]
-    for i in 2:n
-        if crossed_out[i]
-            continue
-        end
-        stride = i
-        append!(primes, [stride])
-        for j in (i+stride):stride:n
-            crossed_out[j] = true
+function is_prime(n::Integer, memo::Dict=Dict())
+    if haskey(memo, n)
+        return memo[n]
+    end
+    if n == 2
+        memo[n] = true
+        return true
+    end
+    for i in 2:int(floor(sqrt(n)))
+        if n % i == 0
+            memo[n] = false
+            return false
         end
     end
-    return primes
+    memo[n] = true
+    return true
 end
 
-@test primes_up_to(2) == [2]
-@test primes_up_to(3) == [2, 3]
-@test primes_up_to(4) == [2, 3]
-@test primes_up_to(10) == [2, 3, 5, 7]
+@test is_prime(2) == true
+@test is_prime(3) == true
+@test is_prime(4) == false
+@test is_prime(17) == true
+@test is_prime(21) == false
 
-function prime_factors(n::Integer)
-    # return prime factors of n
-    max_factor = int(floor(n / 2))
-    possible_factors = primes_up_to(max_factor)
-    factors = Int[]
-    for factor in possible_factors
-        if n % factor == 0 && factor != n
-            append!(factors, [factor])
+function largest_prime_factor(n::Integer)
+    i = 2
+    memo = Dict{Int64,Bool}()
+    largest_prime = 0
+    while i <= n
+        if is_prime(i, memo)
+            # remove the factor completely
+            while n % i == 0
+                n = div(n, i)
+                # we've removed all smaller factors, so this is largest
+                largest_prime = i
+            end
         end
+        i += 1
     end
-    return factors
+    return largest_prime
 end
 
-@test prime_factors(2) == []
-@test prime_factors(10) == [2, 5]
-@test prime_factors(13195) == [5, 7, 13, 29]
+@test largest_prime_factor(6) == 3
+@test largest_prime_factor(9) == 3
+@test largest_prime_factor(10) == 5
+@test largest_prime_factor(17) == 17
+@test largest_prime_factor(13195) == 29
+@test largest_prime_factor(2^55) == 2
 
 N = 600851475143
-println("Largest prime factor of $(N) is $(prime_factors(N)[end]).")
+println("Largest prime factor of $(N) is $(largest_prime_factor(N)).")
