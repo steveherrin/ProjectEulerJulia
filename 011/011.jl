@@ -26,17 +26,20 @@ end
 # Get row, col coordinates for the corners of a grid with
 # original dimensions g_dim, padded by a boundary of size N,
 # and shifted by i steps of a shift vector
-function get_upper_left_corner(g_dim, N::Integer, i::Integer, shift)
+function get_upper_left_corner(g_dim::(Integer, Integer), N::Integer,
+                               i::Integer, shift::(Integer, Integer))
     return (N + 1 + i*shift[1], N + 1 + i*shift[2])
 end
 
-function get_bottom_right_corner(g_dim, N::Integer, i::Integer, shift)
+function get_bottom_right_corner(g_dim::(Integer, Integer), N::Integer,
+                                 i::Integer, shift::(Integer, Integer))
     return (g_dim[1] + N + i*shift[1], g_dim[2] + N + i*shift[2])
 end
 
 
 # Package the corners up in a tuple we can use to slice the matrix
-function get_corners(g_dim, N::Integer, i::Integer, shift)
+function get_corners(g_dim::(Integer, Integer), N::Integer,
+                     i::Integer, shift::(Integer, Integer))
     u_row, l_col = get_upper_left_corner(g_dim, N, i, shift)
     b_row, r_col = get_bottom_right_corner(g_dim, N, i, shift)
     return u_row:b_row, l_col:r_col
@@ -48,7 +51,7 @@ end
 @test get_corners((2, 2), 1, 1, (0, 1)) == (2:3, 3:4)
 
 
-function pad_grid(grid, N)
+function pad_grid(grid::Array, N::Integer)
     # pad the grid with 1s around the boundary so we can
     # do lots of products at once by just shifting the matrix
     g_dim = size(grid)
@@ -62,7 +65,7 @@ end
 @test pad_grid([9 8;7 6], 1) == [1 1 1 1; 1 9 8 1; 1 7 6 1; 1 1 1 1]
 
 
-function max_product(grid, N_in_a_row)
+function max_product(grid::Array, N_in_a_row::Integer)
     N = N_in_a_row - 1  # it will take 3 shifts to multiply 4 numbers
     g_dim = size(grid)
     padded = pad_grid(grid, N)
