@@ -51,7 +51,7 @@ end
 @test get_corners((2, 2), 1, 1, (0, 1)) == (2:3, 3:4)
 
 
-function pad_grid(grid::Array, N::Integer)
+function pad_grid(grid::Matrix, N::Integer)
     # pad the grid with 1s around the boundary so we can
     # do lots of products at once by just shifting the matrix
     g_dim = size(grid)
@@ -65,7 +65,7 @@ end
 @test pad_grid([9 8;7 6], 1) == [1 1 1 1; 1 9 8 1; 1 7 6 1; 1 1 1 1]
 
 
-function max_product(grid::Array, N_in_a_row::Integer)
+function max_product(grid::Matrix, N_in_a_row::Integer)
     N = N_in_a_row - 1  # it will take 3 shifts to multiply 4 numbers
     g_dim = size(grid)
     padded = pad_grid(grid, N)
