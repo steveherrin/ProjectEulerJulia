@@ -20,6 +20,19 @@ function BigDecimal(x::Integer)
     return BigDecimal(digits, negative)
 end
 
+function BigDecimal(x::String)
+    digits = Uint8[]
+    negative = x[1] == '-'
+    start = 1
+    if negative
+        start = 2
+    end
+    for i in start:length(x)
+        push!(digits, parseint(x[i:i]))
+    end
+    return BigDecimal(digits, negative)
+end
+
 function dec(x::BigDecimal)
     s = reduce(*, map(dec, reverse!(x.digits)))
     if x.negative
