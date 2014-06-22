@@ -27,14 +27,14 @@ function BigDecimal(x::String)
     if negative
         start = 2
     end
-    for i in start:length(x)
+    for i in length(x):-1:start
         push!(digits, parseint(x[i:i]))
     end
     return BigDecimal(digits, negative)
 end
 
 function dec(x::BigDecimal)
-    s = reduce(*, map(dec, reverse!(x.digits)))
+    s = reduce(*, map(dec, reverse(x.digits)))
     if x.negative
         s = "-" * s
     end
@@ -47,7 +47,7 @@ function +(x::BigDecimal, y::BigDecimal)
     digits = Uint8[]
     N = max(length(x.digits), length(y.digits))
     carry = 0
-    for i in N:-1:1
+    for i in 1:N
         if i > length(x.digits)
             a = 0
         else
@@ -68,4 +68,17 @@ function +(x::BigDecimal, y::BigDecimal)
     end
     result = BigDecimal(digits, x.negative)
     return result
+end
+
+function ==(x::BigDecimal, y::BigDecimal)
+    return (x.negative == y.negative) && (x.digits == y.digits)
+end
+
+using Base.Test
+
+function test_BigDecimal()
+    a = BigDecimal(123456)
+    b = BigDecimal("123456")
+    @test a + b == BigDecimal(reverse(Uint8[2,4,6,9,1,2]), false)
+    return true
 end
