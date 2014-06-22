@@ -11,15 +11,17 @@ end
 # Why this many? If we create new matrices by shifting
 # the matrix over by 0, 1, ..., N - 1 steps we can do the multiplcations
 # in parallel. Padding with 1s fills in the holes left by the shifting.
-# So we'd get
+# So we'd get (for N = 1)
 #   1 1 1 1
 #   1 a b 1
 #   1 c d 1
 #   1 1 1 1
-# And then shifting the matrixes to look at products of adjancent numbers
-# we'd do the multiplications of
-#   a b        b 1   c d   d 1   1 c
-#   c d  with  d 1,  1 1,  1 1,  1 1
+# And then shifting the matrixes to look at products of 2 adjacent numbers
+# we'd do the element-wise multiplications of
+#   a b                b 1   c d   d 1   1 c
+#   c d  with each of  d 1,  1 1,  1 1,  1 1
+# To get a*b, c*d, a*c, b*d, a*d, b*d
+
 
 # Get row, col coordinates for the corners of a grid with
 # original dimensions g_dim, padded by a boundary of size N,
@@ -31,6 +33,7 @@ end
 function get_bottom_right_corner(g_dim, N::Integer, i::Integer, shift)
     return (g_dim[1] + N + i*shift[1], g_dim[2] + N + i*shift[2])
 end
+
 
 # Package the corners up in a tuple we can use to slice the matrix
 function get_corners(g_dim, N::Integer, i::Integer, shift)
@@ -77,6 +80,8 @@ end
 @test max_product([2 3; 4 5], 2) == 20
 @test max_product([5 3; 4 5], 2) == 25
 @test max_product([5 6; 4 5], 2) == 30
+@test max_product([5 6; 6 5], 2) == 36
+
 
 println("The greatest 4-in-a-row product from the grid given is ",
         "$(max_product(load_grid(), 4))")
