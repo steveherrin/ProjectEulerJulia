@@ -100,9 +100,11 @@ function <(x::BigDecimal, y::BigDecimal)
     if length(x.digits) < length(y.digits)
         return true
     elseif length(x.digits) == length(y.digits)
-        for (xd, yd) in zip(x.digits, y.digits)
+        for (xd, yd) in zip(reverse(x.digits), reverse(y.digits))
             if xd < yd
                 return true
+            elseif xd > yd
+                return false
             end
         end
     end
@@ -126,6 +128,8 @@ function test_BigDecimal()
     @test a <= b
     @test a <= b + BigDecimal(1)
     @test a < b + BigDecimal(1)
+    @test !(BigDecimal("211") < BigDecimal("112"))
+    @test BigDecimal("112") < BigDecimal("211")
     @test a + b == BigDecimal(reverse(Uint8[2,4,6,9,1,2]), false)
     @test a + b == BigDecimal(reverse(Uint8[2,4,6,9,1,2]), false)
     @test a * b == BigDecimal("15241383936")
