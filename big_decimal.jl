@@ -1,6 +1,6 @@
 export BigDecimal
 
-import Base: dec, show, string, +, *, push!, div, abs
+import Base: dec, show, string, +, *, push!, div, abs, factorial, <, <=, ==
 
 # Arbitrary precision decimal numbers
 
@@ -43,6 +43,10 @@ end
 string(x::BigDecimal) = dec(x)
 show(io::IO, x::BigDecimal) = print(io, string(x))
 
+function abs(x::BigDecimal)
+    return BigDecimal(x.digits, false)
+end
+
 function +(x::BigDecimal, y::BigDecimal)
     digits = Uint8[]
     N = max(length(x.digits), length(y.digits))
@@ -70,8 +74,47 @@ function +(x::BigDecimal, y::BigDecimal)
     return result
 end
 
+function *(x::BigDecimal, y::BigDecimal)
+    product = BigDecimal(0)
+    count = BigDecimal(0)
+    while count < y
+        product += x
+        count += BigDecimal(1)
+    end
+    return product
+end
+
+
+function factorial(x::BigDecimal)
+    product = BigDecimal(1)
+    count = BigDecimal(1)
+    while count <= x
+        product *= count
+        count += BigDecimal(1)
+    end
+    return product
+end
+
+
+function <(x::BigDecimal, y::BigDecimal)
+    if length(x.digits) < length(y.digits)
+        return true
+    elseif length(x.digits) == length(y.digits)
+        for (xd, yd) in zip(x.digits, y.digits)
+            if xd < yd
+                return true
+            end
+        end
+    end
+    return false
+end
+
 function ==(x::BigDecimal, y::BigDecimal)
     return (x.negative == y.negative) && (x.digits == y.digits)
+end
+
+function <=(x::BigDecimal, y::BigDecimal)
+    return (x == y) || (x < y)
 end
 
 using Base.Test
@@ -79,6 +122,13 @@ using Base.Test
 function test_BigDecimal()
     a = BigDecimal(123456)
     b = BigDecimal("123456")
+    @test a == b
+    @test a <= b
+    @test a <= b + BigDecimal(1)
+    @test a < b + BigDecimal(1)
     @test a + b == BigDecimal(reverse(Uint8[2,4,6,9,1,2]), false)
+    @test a + b == BigDecimal(reverse(Uint8[2,4,6,9,1,2]), false)
+    @test a * b == BigDecimal("15241383936")
+    @test factorial(BigDecimal(4)) == BigDecimal(24)
     return true
 end
