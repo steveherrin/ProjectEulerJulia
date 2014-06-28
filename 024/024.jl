@@ -4,15 +4,16 @@ include("../permute.jl")
 
 function get_nth_permutation(a, n::Integer)
     copy_a = copy(a)
-    for i in 1:n
+    for i in 1:(n-1)
         permute!(copy_a)
     end
     return copy_a
 end
 
-@test get_nth_permutation([0,1,2], 1) == [0, 2, 1]
-@test get_nth_permutation([0,1,2], 2) == [1, 0, 2]
-@test get_nth_permutation([0,1,2], 6) == [0, 1, 2]
+@test get_nth_permutation([0,1,2], 2) == [0, 2, 1]
+@test get_nth_permutation([0,1,2], 3) == [1, 0, 2]
+@test get_nth_permutation([0,1,2], 7) == [0, 1, 2]
+@test get_nth_permutation([0,1,2], 1) == [0, 1, 2]
 
 function vector_to_string(v::Vector)
     return prod(map(string, v))
