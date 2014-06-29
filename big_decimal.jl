@@ -1,6 +1,6 @@
 export BigDecimal
 
-import Base: dec, show, string, +, *, push!, div, abs, factorial, <, <=, ==
+import Base: dec, show, string, +, *, ^, push!, div, abs, factorial, <, <=, ==, isequal, hash
 
 # Arbitrary precision decimal numbers
 
@@ -69,6 +69,7 @@ function dec(x::BigDecimal)
 end
 string(x::BigDecimal) = dec(x)
 show(io::IO, x::BigDecimal) = print(io, string(x))
+hash(x::BigDecimal) = hash(string(x))
 
 function -(x::BigDecimal)
     negative = !x.negative
@@ -142,6 +143,22 @@ function *(x::BigDecimal, y::BigDecimal)
     return product
 end
 
+function ^(x::BigDecimal, y::BigDecimal)
+    if x == BigDecimal(1)
+        return BigDecimal(1)
+    end
+    if y < BigDecimal(0)
+        return BigDecimal(0)
+    end
+    count = copy(y)
+    result = BigDecimal(1)
+    while count > BigDecimal(0)
+        result *= x
+        count -= BigDecimal(1)
+    end
+    return result
+end
+
 
 function factorial(x::BigDecimal)
     product = BigDecimal(1)
@@ -175,6 +192,7 @@ end
 function ==(x::BigDecimal, y::BigDecimal)
     return (x.negative == y.negative) && (x.digits == y.digits)
 end
+isequal(x::BigDecimal, y::BigDecimal) = ==(x, y)
 
 function <=(x::BigDecimal, y::BigDecimal)
     return (x == y) || (x < y)
@@ -203,6 +221,9 @@ function test_BigDecimal()
     @test a * (-b) == BigDecimal("-15241383936")
     @test (-a) * (-b) == BigDecimal("15241383936")
     @test (-a) * b == -BigDecimal("15241383936")
+    @test BigDecimal(1) ^ a == BigDecimal(1)
+    @test a ^ BigDecimal(0) == BigDecimal(1)
+    @test BigDecimal(2) ^ BigDecimal(4) == BigDecimal(16)
     @test factorial(BigDecimal(4)) == BigDecimal(24)
     return true
 end
